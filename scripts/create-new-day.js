@@ -4,9 +4,8 @@ async function app(github, context, exec) {
     const parts = dateTimeStr.split(".")
     const day =  Number(parts[0])
     const month = Number(parts[1])
-    const year = Number(parts[2].substring(0,4))
 
-    if( year == 2023 && month == 12 && day <= 25){
+    if( month === 12 && day <= 25){
         const targetBrahch = getTargetBranch(day)
         await createNewBranchAndPushItToRemote(exec, targetBrahch)
         await addFile(github, context, `day${day}/input.txt`, "input", targetBrahch)

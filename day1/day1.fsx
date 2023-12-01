@@ -42,5 +42,6 @@ let task2 =
     readFile ()
     |> List.map findDigitsBruteForce
     |> List.sum
+    
 printfn $"Task 1: {task1}" // 54331
 printfn $"Task 2: {task2}" // 54518
