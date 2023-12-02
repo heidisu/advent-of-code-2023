@@ -33,6 +33,8 @@ let testDay day task1expected task2expected =
 let tests =
     testList "Test all days" [
         testDay 1 "54331" "54518"
+        testDay 2 "2268" "63542"
+
     ]
 let exitcode = runTestsWithCLIArgs [] [||] tests
 exit exitcode
