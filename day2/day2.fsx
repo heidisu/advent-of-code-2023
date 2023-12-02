@@ -1,4 +1,3 @@
-
 open System.IO
 
 let readFile () = 
@@ -6,12 +5,10 @@ let readFile () =
     |> Seq.toList
 
 type Color = Red | Blue | Green
-
 type Round = (Color * int) list 
 type Game = int * Round list
 
 let stringToColor str = 
-    printfn "%A" str
     match str with
     | "blue" -> Blue
     | "red" -> Red
@@ -65,15 +62,10 @@ let isValid (game: Game): bool =
 
 let maxColor (rounds: Round list) (color: Color): int =
     rounds
-    |> List.map (
-        fun r -> 
-            let found = r |> List.tryFind (fun (c, i) -> c = color)
-            match found with
-            | Some m -> m
-            | None ->  (color, 0)
+    |> List.choose (
+        fun r -> r |> List.tryFind (fun (c, i) -> c = color)
     ) |> List.maxBy snd
     |> snd
-
 
 let minBlocks ((i, rnds): Game) =
     let red = maxColor rnds Red
