@@ -16,7 +16,7 @@ let parse (s: string) =
     let cardNumbers = parseNumbers parts[1]
     (winners, cardNumbers)
 
-let calculate (winners,  cardNumbers) = 
+let calculate (winners, cardNumbers) = 
     cardNumbers
     |> List.fold (fun acc i -> 
             if List.contains i winners 
