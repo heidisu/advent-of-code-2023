@@ -27,7 +27,7 @@ type Almanac2 = {
 }
 
 let readFile () = 
-    File.ReadLines "test-input.txt"
+    File.ReadLines "input.txt"
     |> Seq.toList
 
 let parse (lines: string list): Almanac =
@@ -45,7 +45,9 @@ let parse (lines: string list): Almanac =
             if l = "" then  
                 match current with
                 | None -> (maps, None)
-                | Some almanac -> (almanac :: maps, None)
+                | Some almanac -> 
+                    let sorted = { almanac with Ranges = almanac.Ranges |> List.sortBy (fun r -> r.Source)}
+                    (almanac :: maps, None)
             else 
                 match current with
                 | None ->
@@ -86,7 +88,55 @@ let searchValue (source: int64) (range: Range) =
         Some <| range.Destination + idx
     else None
 
-let searchRange (s: Seed) (ranges: Range list) : Seed list = [ s ]     
+let intersection (s: Seed) (r: Range): Range option = 
+    if s.Start >= r.Source + r.Range || s.Start + s.Length - 1L < r.Source
+    then None
+    else 
+        let start = max (r.Source) (s.Start)
+        let stop = min (s.Start + s.Length - 1L) (r.Source + r.Range - 1L)
+        let destIdx = (start - r.Source)
+        let dest = r.Destination + destIdx
+        let range = { Source = start; Range = stop - start + 1L; Destination = dest }
+        Some range
+
+let searchRange (s: Seed) (ranges: Range list) : Seed list = 
+    let intersections = 
+        ranges
+        |> List.choose (intersection s)
+        |> List.sortBy (fun r -> r.Source)
+    if List.isEmpty intersections then [ s ]
+    else 
+        let first = List.head intersections
+        let startList =
+            if s.Start < first.Source then [first; {
+                Source = s.Start
+                Destination = s.Start
+                Range = first.Source - s.Start
+
+            }] else [ first ]
+        let (complete, last) = 
+            intersections
+            |> List.tail
+            |> List.fold (fun (l, prev) r ->
+                    let gapStart = prev.Source + prev.Range
+                    if gapStart < r.Source then 
+                        (r :: {
+                            Source = gapStart
+                            Destination = gapStart
+                            Range = r.Source - gapStart
+                        } :: l, r)
+                    else (r :: l, r)
+                ) (startList, first)
+        let total = 
+            if s.Start + s.Length > last.Source + last.Range 
+            then 
+                let start = last.Source + last.Range
+                let length = s.Start + s.Length - start
+                { Source = start; Destination = start; Range = length  } :: complete 
+            else complete 
+        total
+        |> List.map (fun r -> 
+            { Start = r.Destination; Length = r.Range })     
 
 let toAlmanac2 (a: Almanac): Almanac2 =
     {
@@ -116,6 +166,7 @@ let task1 =
         )
     ) (almanac.Seeds)
     |> List.min
+
 let task2 =
     let almanac = 
         readFile ()
@@ -125,11 +176,12 @@ let task2 =
     |> List.fold (fun (sl: Seed list) (m: AlmanacRange)  -> 
         sl
         |> List.collect (fun (s: Seed) -> 
-            searchRange s m.Ranges
+            let res = searchRange s m.Ranges
+            res
         )
     ) (almanac.Seeds)
     |> List.minBy (fun s -> s.Start)
     |> (fun s -> s.Start)
 
 printfn $"Task 1: {task1}" // 600279879
-printfn $"Task 2: {task2}"
+printfn $"Task 2: {task2}" // 20191102
