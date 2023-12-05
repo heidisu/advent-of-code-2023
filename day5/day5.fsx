@@ -7,22 +7,26 @@ type Range = {
 }
 
 let getValue (source: int64) (range: Range) = 
-    if source >= range.Source
+    if source >= range.Source && source < range.Source + range.Range
+    then
+        let idx = (source - range.Source) |> int64
+        Some <| range.Destination + idx
+    else None
+        
 
-type AlmanacMap = {
+type AlmanacRange = {
     From: string
     To: string
-    Map: Map<int64, int64>
+    Ranges: Range list
 }
-
 
 type Almanac = {
     Seeds: int64 list
-    Maps: AlmanacMap list
+    Maps: AlmanacRange list
 }
 
 let readFile () = 
-    File.ReadLines "test-input.txt"
+    File.ReadLines "input.txt"
     |> Seq.toList
 
 let parse (lines: string list) =
@@ -36,7 +40,7 @@ let parse (lines: string list) =
     let (maps, current) = 
         lines
         |> List.skip 2
-        |> List.fold ( fun (maps: AlmanacMap list, current: AlmanacMap option) l ->
+        |> List.fold ( fun (maps: AlmanacRange list, current: AlmanacRange option) l ->
             if l = "" then  
                 match current with
                 | None -> (maps, None)
@@ -51,7 +55,7 @@ let parse (lines: string list) =
                     let current = {
                         From = from
                         To = toName
-                        Map = Map.empty
+                        Ranges = List.empty
                     }
                     (maps, Some current)
                 | Some almanac ->
@@ -59,12 +63,11 @@ let parse (lines: string list) =
                         l.Split(" ")
                         |> Array.map int64
                     let range = parts[2]
-                    let sourceRange = [parts[1] .. parts[1] + range - (int64 1)]
-                    let destRange = [parts[0] .. parts[0] + range - (int64 1)]
-                    let newMap = 
-                        List.zip sourceRange destRange
-                        |> List.fold (fun m (s, d) -> Map.add s d m) almanac.Map
-                    (maps, Some { almanac with Map = newMap})
+                    let source = parts[1]
+                    let destination = parts[0]
+                    let newRange = { Source =  source; Destination = destination; Range = range }
+                        
+                    (maps, Some { almanac with Ranges = newRange :: almanac.Ranges})
         ) (List.empty, None)
     let finalMaps = 
         match current with
@@ -82,10 +85,15 @@ let task1 =
     almanac.Maps
     |> List.fold (fun s m  -> 
         s
-        |> List.map (fun s -> 
-            if Map.containsKey s m.Map 
-            then Map.find s m.Map
-            else s)
+        |> List.map (fun s ->
+            let matches =
+                m.Ranges
+                |> List.choose (fun r -> getValue s r)
+            match matches with
+            | [] -> s
+            | [x] -> x
+            | _ -> failwith "should not be more than one"
+        )
     ) (almanac.Seeds)
     |> List.min
 let task2 = "task 2"
