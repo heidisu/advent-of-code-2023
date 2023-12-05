@@ -1,5 +1,14 @@
 open System.IO
 
+type Range = {
+    Source: int64
+    Destination: int64
+    Range: int64
+}
+
+let getValue (source: int64) (range: Range) = 
+    if source >= range.Source
+
 type AlmanacMap = {
     From: string
     To: string
@@ -65,21 +74,20 @@ let parse (lines: string list) =
         Seeds = seeds
         Maps = List.rev finalMaps
     }
-
-let seedToLocation (a: Almanac) (currIdx: int) = 
     
-
 let task1 = 
     let almanac = 
         readFile ()
         |> parse
-    (* almanac.Maps
+    almanac.Maps
     |> List.fold (fun s m  -> 
-        match m with
-        | [] -> s
-        | x :: xs -> 
-            List.map
-    ) (almanac.Seeds)*)
+        s
+        |> List.map (fun s -> 
+            if Map.containsKey s m.Map 
+            then Map.find s m.Map
+            else s)
+    ) (almanac.Seeds)
+    |> List.min
 let task2 = "task 2"
 
 printfn $"Task 1: {task1}"
