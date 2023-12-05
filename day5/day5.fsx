@@ -176,8 +176,7 @@ let task2 =
     |> List.fold (fun (sl: Seed list) (m: AlmanacRange)  -> 
         sl
         |> List.collect (fun (s: Seed) -> 
-            let res = searchRange s m.Ranges
-            res
+            searchRange s m.Ranges
         )
     ) (almanac.Seeds)
     |> List.minBy (fun s -> s.Start)
