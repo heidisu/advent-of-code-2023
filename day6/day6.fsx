@@ -30,18 +30,24 @@ let parse2 (l1: string) (l2: string): int64 * int64 =
     (times, records)
 
 let calculateRecords (time: int64) (record: int64) = 
-    [1L .. time]
-    |> List.map (fun charge ->
-        let remaining = time - charge
-        remaining * charge)
-    |> List.filter (fun i -> i > record)
-    |> List.length
+    let timeF = float time
+    let recordF = float record
+    let root = Math.Sqrt(timeF * timeF - 4.0 * recordF)
+    let min = (timeF - root) / 2.0
+    let max = (timeF + root) / 2.0
+    let roundMin = Math.Ceiling min
+    let roundMax = Math.Floor max
+    
+    // correct if roots are integer
+    let corrMin = if min = roundMin then min + 1.0  else roundMin
+    let corrMax = if max = roundMax then max - 1.0 else roundMax
+    corrMax - corrMin + 1.0 |> int64
 
 let task1 = 
     let lines = readFile ()
     parse lines[0] lines[1]
     |> List.map (fun (t, r) -> calculateRecords t r)
-    |> List.fold ( * ) 1
+    |> List.fold ( * ) 1L
 let task2 = 
     let lines = readFile ()
     let (time, record) = parse2 lines[0] lines[1]
