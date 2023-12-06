@@ -30,8 +30,7 @@ let parse2 (l1: string) (l2: string): int64 * int64 =
     (times, records)
 
 let calculateRecords (time: int64) (record: int64) = 
-    [1 .. (int time)]
-    |> List.map int64
+    [1L .. time]
     |> List.map (fun charge ->
         let remaining = time - charge
         remaining * charge)
