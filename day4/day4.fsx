@@ -1,7 +1,7 @@
 open System.IO
 
 let readFile () = 
-    File.ReadLines "input.txt"
+    File.ReadLines "test-input.txt"
     |> Seq.toList
 
 let parseNumbers (s: string) = 

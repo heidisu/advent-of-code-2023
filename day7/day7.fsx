@@ -137,7 +137,7 @@ let getType2 (cards: Card list) =
     | None -> getType cards
     
 let readFile () = 
-    File.ReadLines "input.txt"
+    File.ReadLines "test-input.txt"
     |> Seq.toList
 
 let parse (getType: Card list -> CardType) (l: string) =

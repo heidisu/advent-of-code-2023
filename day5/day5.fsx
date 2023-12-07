@@ -27,7 +27,7 @@ type Almanac2 = {
 }
 
 let readFile () = 
-    File.ReadLines "input.txt"
+    File.ReadLines "test-input.txt"
     |> Seq.toList
 
 let parse (lines: string list): Almanac =

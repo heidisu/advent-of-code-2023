@@ -2,7 +2,7 @@ open System.IO
 open System
 
 let readFile () = 
-    File.ReadLines "input.txt"
+    File.ReadLines "test-input.txt"
     |> Seq.toList
 
 let parseMultiNumberLine (l: string) = 

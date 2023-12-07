@@ -8,7 +8,6 @@ async function app(github, context, exec) {
     if( month === 12 && day <= 25){
         const targetBrahch = getTargetBranch(day)
         await createNewBranchAndPushItToRemote(exec, targetBrahch)
-        await addFile(github, context, `day${day}/input.txt`, "input", targetBrahch)
         await addFile(github, context, `day${day}/test-input.txt`, "test-input", targetBrahch)
         await addFile(github, context, `day${day}/day${day}.fsx`, fsxFileContent, targetBrahch)
     }   
