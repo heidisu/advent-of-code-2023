@@ -39,8 +39,6 @@ type Hand = {
     Bid: int64
 }
 
-let hand = { Cards =  [ A ]; Type = FiveOfAKind; Bid = 0L}
-
 let charToCard = function 
     | 'A' -> A
     | 'K' -> K
