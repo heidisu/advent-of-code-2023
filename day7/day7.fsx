@@ -39,7 +39,9 @@ type Hand = {
     Bid: int64
 }
 
-let charToCard = function
+let hand = { Cards =  [ A ]; Type = FiveOfAKind; Bid = 0L}
+
+let charToCard = function 
     | 'A' -> A
     | 'K' -> K
     | 'Q' -> Q
@@ -70,6 +72,21 @@ let cardToValue = function
     | Three -> 3
     | Two -> 2
 
+let cardToValue2 = function
+    | A -> 14
+    | K -> 13
+    | Q -> 12
+    | T -> 11
+    | Nine -> 10
+    | Eight -> 9 
+    | Seven -> 8
+    | Six -> 7
+    | Five -> 6
+    | Four -> 5
+    | Three -> 4
+    | Two -> 3
+    | J -> 2
+
 let getType (cards: Card list) = 
     let groups = cards |> List.groupBy id
     let numGroups = List.length groups
@@ -90,26 +107,20 @@ let getType (cards: Card list) =
     else if numGroups = 4 then OnePair
     else failwith "not valid"
 
-// 5J, 4 J -> FiveOfAKind
-// 3J -> Four
-// 2J -> 2J + A B C = Tree
-// 2J  + 2A + B
-// 2J 3B -> Five
 let getType2 (cards: Card list) =
     let groups = cards |> List.groupBy id
-    match List.tryFind (fun (c, l) -> c = J) groups with
-    | Some (c, l) ->
+    let numOtherGroups = List.length groups - 1
+    match List.tryFind (fun (c, _) -> c = J) groups with
+    | Some (_, l) ->
         let size = List.length l
         if size = 4 || size = 5 then FiveOfAKind
         else if size = 3 then
-            if List.length cards = 2 then FiveOfAKind
+            if numOtherGroups = 1 then FiveOfAKind
             else FourOfAKind
         else if size = 2 then
-            let groupSize = List.length groups
-            printfn "groupsize %A" groupSize
-            if groupSize = 4 then ThreeOfAKind
-            else if groupSize = 3 then FourOfAKind
-            else if groupSize = 2 then FiveOfAKind
+            if numOtherGroups = 3 then ThreeOfAKind
+            else if numOtherGroups = 2 then FourOfAKind
+            else if numOtherGroups = 1 then FiveOfAKind
             else FiveOfAKind
         else if size = 1 then
             let indexJ = List.findIndex (fun c -> c = J) cards
@@ -121,8 +132,7 @@ let getType2 (cards: Card list) =
             |> List.map (fun cards ->
                     let cardType = getType cards
                     (cardType, typeToValue cardType))
-            |> List.sortBy snd
-            |> List.rev
+            |> List.sortByDescending snd
             |> List.head
             |> fst
         else failwith "error"
@@ -142,7 +152,7 @@ let parse (getType: Card list -> CardType) (l: string) =
         Type = getType cards
     }
 
-let comparer (first: Hand) (second: Hand) =
+let comparer (cardToValue: Card -> int) (first: Hand) (second: Hand) =
     let firstTypeValue = typeToValue first.Type
     let secondTypeValue = typeToValue second.Type
     if firstTypeValue > secondTypeValue then 1
@@ -156,16 +166,15 @@ let comparer (first: Hand) (second: Hand) =
 let task1 =
     readFile ()
     |> List.map (parse getType)
-    |> List.sortWith comparer
+    |> List.sortWith (comparer cardToValue)
     |> List.mapi (fun i h -> (int64 (i + 1)) * h.Bid)
     |> List.sum
 let task2 =
     readFile ()
     |> List.map (parse getType2)
-    |> List.sortWith comparer
+    |> List.sortWith (comparer cardToValue2)
     |> List.mapi (fun i h -> (int64 (i + 1)) * h.Bid)
     |> List.sum
-   //|> List.iter (printfn "%A")
 
 printfn $"Task 1: {task1}" // 253954294
-printfn $"Task 2: {task2}" // 253647164 too low // 254917592 too high
+printfn $"Task 2: {task2}" // 254837398
