@@ -122,5 +122,5 @@ let task1 =
     |> List.sum
 let task2 = "task 2"
 
-printfn $"Task 1: {task1}"
+printfn $"Task 1: {task1}" // 253954294
 printfn $"Task 2: {task2}"
