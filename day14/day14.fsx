@@ -90,34 +90,20 @@ let moveCycle (grid: char array array) =
         move d snd
         ) (0L, grid)
 
-let findCycle (grid: char array array) =
-    let mutable found  = false
-    let mutable idx = 1
-    let mutable prev = grid
-    let mutable beams = []
-    let mutable grids = [ (1, grid) ]
-    let mutable result = 0L
-    while not found do
-        let (beam, gr) = moveCycle prev
-        let find = List.tryFind (fun (i, g) -> g = gr) grids
-        match find with
-        | Some (i, g) -> 
-            found  <- true
-            prev <- gr
-            let correct = (1000000000 - i) % (idx - i) + i
-            result <-
-                beams
-                |> List.find (fun (i, g) -> i = correct)
-                |> snd
-        | None ->
-            prev <- gr
-            beams <- (idx, beam) :: beams
-            grids <- (idx, gr) :: grids
-            idx <- idx + 1
-    result
+let rec findCycle (idx: int) (beams: (int * int64) list) (grids: (int * char array array) list) (grid: char array array) =
+    let (beam, gr) = moveCycle grid
+    let found = List.tryFind (fun (i, g) -> g = gr) grids
+    match found with
+    | Some (i, g) -> 
+        let correct = (1000000000 - i) % (idx - i) + i
+        beams
+        |> List.find (fun (i, g) -> i = correct)
+        |> snd
+    | None ->
+        findCycle (idx + 1) ((idx, beam) :: beams) ((idx, gr) :: grids) gr 
     
 let task1 =  move North grid |> fst
-let task2 = findCycle grid
+let task2 = findCycle 1 [] [] grid
 
 printfn $"Task 1: {task1}" // 110677
 printfn $"Task 2: {task2}" // 90551
