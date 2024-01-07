@@ -41,34 +41,34 @@ let inGrid grid (x, y) =
 
 let findStartNeighbours (grid: char array array) (x, y) = 
     let mutable neighbours = []
-    let down = if inGrid grid (x + 1, y) then Some <| grid[x + 1][y] else None
-    let up = if inGrid grid (x - 1, y) then Some <| grid[x - 1][y] else None
-    let left =  if inGrid grid (x, y - 1) then Some <| grid[x][y - 1] else None
-    let right = if inGrid grid (x, y + 1) then Some <| grid[x][y + 1] else None
     
-    match down with
-    | Some '|'
-    | Some 'L'
-    | Some 'J' ->  neighbours <- (x + 1, y) :: neighbours
-    | _ -> ()
+    if inGrid grid (x + 1, y) then // down
+        match grid[x + 1][y] with
+        | '|'
+        | 'L'
+        | 'J' ->  neighbours <- (x + 1, y) :: neighbours
+        | _ -> ()
 
-    match up with 
-    | Some '|'
-    | Some 'F'
-    | Some '7' -> neighbours <- (x - 1, y) :: neighbours
-    | _ -> ()
+    if inGrid grid (x - 1, y) then // up
+        match grid[x - 1][y] with 
+        | '|'
+        | 'F'
+        | '7' -> neighbours <- (x - 1, y) :: neighbours
+        | _ -> ()
     
-    match left with
-    | Some '-'
-    | Some 'L'
-    | Some 'F' ->  neighbours <- (x, y - 1) :: neighbours
-    | _ -> ()
+    if inGrid grid (x, y - 1) then // left
+        match grid[x][y - 1] with
+        | '-'
+        | 'L'
+        | 'F' ->  neighbours <- (x, y - 1) :: neighbours
+        | _ -> ()
 
-    match right with 
-    | Some '-'
-    | Some '7'
-    | Some 'J' -> neighbours <- (x, y + 1) :: neighbours
-    | _ -> ()
+    if inGrid grid (x, y + 1) then // right
+        match grid[x][y + 1] with 
+        | '-'
+        | '7'
+        | 'J' -> neighbours <- (x, y + 1) :: neighbours
+        | _ -> ()
 
     if List.length neighbours <> 2 then failwith "invalid start"
     (List.head neighbours, List.last neighbours)
@@ -84,23 +84,23 @@ let (steps, path) = move grid  [start] 1 left right
 let task1 = steps
 printfn $"Task 1: {task1}" // 6640
 
-let isNeigbour ((x, y): int * int) ((a, b): int * int) = 
+let isNeighbour ((x, y): int * int) ((a, b): int * int) = 
     (x = a + 1 && y = b) || (x = a - 1 && y = b) || (x = a && y = b + 1) || (x = a && y = b - 1)
 
-let rec findNeigbours points (current : (int * int) Set) (prev: (int * int) Set) = 
+let rec findNeighbours points (current : (int * int) Set) (prev: (int * int) Set) = 
     if current = prev then current
     else 
         let newNeighbours =
             points 
-            |> List.filter (fun p -> current |> Set.exists (fun q -> isNeigbour p q))
+            |> List.filter (fun p -> current |> Set.exists (fun q -> isNeighbour p q))
             |> Set.ofList
         let newCurrent = Set.union newNeighbours current
-        findNeigbours points newCurrent current
+        findNeighbours points newCurrent current
 
 let rec groupPoints (acc: (int * int) Set Set) (points : (int * int) List) (current: (int * int) Set) =
     if List.isEmpty points then acc
     else 
-        let newGroup = findNeigbours points current Set.empty
+        let newGroup = findNeighbours points current Set.empty
         let newPoints = points |> List.filter (fun p -> not <| Set.contains p newGroup)
         if List.isEmpty newPoints then Set.add newGroup acc
         else 
